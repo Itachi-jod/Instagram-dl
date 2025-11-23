@@ -1,7 +1,7 @@
 {
-  "name": "cmi-ajax-api",
+  "name": "cmi-ajax-api-get",
   "version": "1.0.0",
-  "description": "Node.js API to POST to cmi.us.com admin-ajax.php",
+  "description": "Node.js API to GET from cmi.us.com admin-ajax.php with headers and cookies",
   "main": "index.js",
   "author": "ItachiXD",
   "license": "MIT",
