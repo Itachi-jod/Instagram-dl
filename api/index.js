@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
   }
 
   // Download endpoint
-  if (path === "/api/download") {
+  if (path === "/download") {
     const mediaUrl = query.url;
 
     if (!mediaUrl) {
