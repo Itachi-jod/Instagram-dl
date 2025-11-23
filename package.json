@@ -1,7 +1,7 @@
 {
-  "name": "instagram-downloader-api",
+  "name": "cmi-ajax-api",
   "version": "1.0.0",
-  "description": "Instagram downloader API using GET method and Fastok",
+  "description": "Node.js API to POST to cmi.us.com admin-ajax.php",
   "main": "index.js",
   "author": "ItachiXD",
   "license": "MIT",
