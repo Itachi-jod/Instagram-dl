@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const qs = require('qs');
 
 const app = express();
 app.use(cors());
@@ -10,14 +11,15 @@ const PORT = process.env.PORT || 3000;
 
 app.get('/download', async (req, res) => {
     try {
-        // Pass all query parameters from URL to the GET request
-        const queryParams = req.query;
+        // Convert query parameters from GET request to POST body
+        const postData = req.query;
 
-        const response = await axios.get(
-            'https://cmi.us.com/wp-admin/admin-ajax.php',
+        const response = await axios.post(
+            'https://cmi.us.com/wp-admin/admin-ajax.php', // Keep POST
+            qs.stringify(postData),
             {
-                params: queryParams,
                 headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
                     'Origin': 'https://cmi.us.com',
                     'Referer': 'https://cmi.us.com/',
@@ -40,12 +42,12 @@ app.get('/download', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         res.status(500).json({
-            error: 'Failed to GET from cmi.us.com',
+            error: 'Failed to POST to cmi.us.com',
             details: error.message
         });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`CMI AJAX GET API running on port ${PORT}`);
+    console.log(`CMI AJAX GET-to-POST API running on port ${PORT}`);
 });
