@@ -1,93 +1,48 @@
-import express from "express";
-import axios from "axios";
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Function to extract direct video URL from Instatik HTML
-function extractVideoUrl(html) {
-  const matches = [...html.matchAll(/<a[^>]+href="dl\.php\?url=([^"]+)"/g)];
-  if (!matches || matches.length === 0) return null;
-  const encodedUrl = matches[matches.length - 1][1];
-  return decodeURIComponent(encodedUrl);
-}
+const PORT = process.env.PORT || 3000;
 
-// Main Instagram API route
-app.post("/download", async (req, res) => {
-  const { url } = req.body;
-  if (!url)
-    return res.status(400).json({ status: false, message: "URL is required" });
+app.get('/download', async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json({ error: 'Missing url parameter' });
 
-  try {
-    const response = await axios.post(
-      "https://instatik.app/core/ajax.php",
-      new URLSearchParams({ url, host: "instagram" }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "X-Requested-With": "XMLHttpRequest",
-          "User-Agent": "Mozilla/5.0",
-        },
-      }
-    );
+    try {
+        // GET request to FastDL with headers mimicking browser
+        const response = await axios.get('https://fastdl.app/api/convert', {
+            params: { url },
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                'Origin': 'https://fastdl.app',
+                'Referer': 'https://fastdl.app/',
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36',
+                'Sec-Ch-Ua': '"Chromium";v="137", "Not=A?Brand";v="24"',
+                'Sec-Ch-Ua-Mobile': '?1',
+                'Sec-Ch-Ua-Platform': '"Android"',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.9'
+            },
+            timeout: 15000
+        });
 
-    const html = response.data;
-    const videoUrl = extractVideoUrl(html);
-
-    if (!videoUrl)
-      return res
-        .status(404)
-        .json({ status: false, message: "Video not found" });
-
-    return res.json({ status: true, url: videoUrl });
-  } catch (err) {
-    console.error("Axios error:", err.message);
-    return res
-      .status(500)
-      .json({ status: false, message: "Failed to fetch video" });
-  }
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'Failed to fetch from Instagram API', 
+            details: error.message 
+        });
+    }
 });
 
-// Test via GET
-app.get("/download", async (req, res) => {
-  const { url } = req.query;
-  if (!url)
-    return res.status(400).json({ status: false, message: "URL is required" });
-
-  try {
-    const response = await axios.post(
-      "https://instatik.app/core/ajax.php",
-      new URLSearchParams({ url, host: "instagram" }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "X-Requested-With": "XMLHttpRequest",
-          "User-Agent": "Mozilla/5.0",
-        },
-      }
-    );
-
-    const html = response.data;
-    const videoUrl = extractVideoUrl(html);
-
-    if (!videoUrl)
-      return res
-        .status(404)
-        .json({ status: false, message: "Video not found" });
-
-    return res.json({ status: true, url: videoUrl });
-  } catch (err) {
-    console.error("Axios error:", err.message);
-    return res
-      .status(500)
-      .json({ status: false, message: "Failed to fetch video" });
-  }
+app.listen(PORT, () => {
+    console.log(`Instagram downloader API running on port ${PORT}`);
 });
-
-app.get("/", (req, res) => {
-  res.send("Instagram Downloader API is running fine.");
-});
-
-export default app;
