@@ -1,7 +1,7 @@
 {
   "name": "instagram-downloader-api",
   "version": "1.0.0",
-  "description": "Instagram downloader API using GET method",
+  "description": "Instagram downloader API using GET method and Fastok",
   "main": "index.js",
   "author": "ItachiXD",
   "license": "MIT",
