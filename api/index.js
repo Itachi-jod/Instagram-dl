@@ -16,24 +16,19 @@ module.exports = async (req, res) => {
   const path = req.url.split("?")[0];
   const query = req.query;
 
-  // Root endpoint
-  if (path === "/download/" || path === "/download") {
-    return sendPretty(res, {
-      success: true,
-      endpoint: "/",
-      author: "ItachiXD",
-      message:
-        "Welcome to the Instagram Downloader API. Use /download?url=<MEDIA_URL> to download videos/photos.",
-    });
-  }
-
-  // Download endpoint
+  // Root endpoint info
   if (path === "/download") {
-    const mediaUrl = query.url;
-
-    if (!mediaUrl) {
-      return sendPretty(res, { error: "Missing ?url=" }, 400);
+    if (!query.url) {
+      return sendPretty({
+        success: true,
+        endpoint: "/download",
+        author: "ItachiXD",
+        message:
+          "Welcome to the Instagram Downloader API. Use /download?url=<MEDIA_URL> to download videos/photos.",
+      });
     }
+
+    const mediaUrl = query.url;
 
     try {
       const form = new FormData();
