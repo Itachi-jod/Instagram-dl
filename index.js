@@ -1,62 +1,51 @@
-const axios = require("axios");
+import axios from "axios";
 
-// Pretty print helper
-function pretty(obj) {
-  return JSON.stringify(obj, null, 2);
-}
-
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
-  // Only GET method
+  // Allow only GET
   if (req.method !== "GET") {
-    return res.end(pretty({ success: false, message: "Only GET allowed" }));
+    return res.status(405).json({
+      success: false,
+      message: "Only GET allowed"
+    });
   }
 
-  // Query param
-  const postUrl = req.query.postUrl;
-  if (!postUrl) {
-    return res.end(
-      pretty({
-        success: false,
-        message: "Missing ?postUrl="
-      })
-    );
+  // ?url=
+  const url = req.query.url;
+  if (!url) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing ?url="
+    });
   }
 
   try {
-    // API endpoint (replace with your backend or any extractor)
-    const apiUrl = `https://api.videodropper.app/instagram?url=${encodeURIComponent(
-      postUrl
+    // Reelsaver API
+    const apiUrl = `https://reelsaver.vercel.app/api/video?postUrl=${encodeURIComponent(
+      url
     )}`;
 
-    // Perfect Instagram-like browser headers
     const response = await axios.get(apiUrl, {
       headers: {
         "Accept": "*/*",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "en-US,en;q=0.9",
         "User-Agent":
           "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
-        "Origin": "https://reelsaver.vercel.app",
         "Referer": "https://reelsaver.vercel.app/",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "cross-site",
-        "Sec-CH-UA": '"Chromium";v="137", "Not/A)Brand";v="24"',
-        "Sec-CH-UA-Mobile": "?1",
-        "Sec-CH-UA-Platform": '"Android"'
+        "Origin": "https://reelsaver.vercel.app"
       }
     });
 
-    return res.end(pretty(response.data));
+    return res.status(200).json({
+      success: true,
+      data: response.data
+    });
+
   } catch (err) {
-    return res.end(
-      pretty({
-        success: false,
-        message: err.message,
-        details: err.response?.data || null
-      })
-    );
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      details: err.response?.data || null
+    });
   }
-};
+}
