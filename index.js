@@ -1,23 +1,34 @@
-// index.js
-const express = require("express");
 const axios = require("axios");
-
-const app = express();
 
 // Pretty print helper
 function pretty(obj) {
   return JSON.stringify(obj, null, 2);
 }
 
-app.get("/", (req, res) => {
-  res.send(pretty({ status: "VideoDropper Proxy API is running" }));
-});
+module.exports = async (req, res) => {
+  res.setHeader("Content-Type", "application/json");
 
-app.get("/download", async (req, res) => {
+  // Root check
+  if (req.url === "/" || req.query?.ping === "1") {
+    return res.end(
+      pretty({ status: "VideoDropper Proxy API is running" })
+    );
+  }
+
+  // Only GET supported
+  if (req.method !== "GET") {
+    return res.end(
+      pretty({
+        success: false,
+        message: "Only GET method allowed"
+      })
+    );
+  }
+
   const userUrl = req.query.url;
 
   if (!userUrl) {
-    return res.status(400).send(
+    return res.end(
       pretty({
         success: false,
         message: "Missing parameter ?url="
@@ -49,9 +60,9 @@ app.get("/download", async (req, res) => {
       }
     });
 
-    return res.send(pretty(response.data));
+    return res.end(pretty(response.data));
   } catch (err) {
-    return res.status(500).send(
+    return res.end(
       pretty({
         success: false,
         message: err.message,
@@ -59,6 +70,4 @@ app.get("/download", async (req, res) => {
       })
     );
   }
-});
-
-module.exports = app;
+};
