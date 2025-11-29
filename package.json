@@ -1,15 +1,9 @@
 {
-  "name": "Instagram-downloader-api",
+  "name": "videodropper-client",
   "version": "1.0.0",
-  "description": "Instagram downloader API using xrespond.com",
   "main": "index.js",
-  "author": "ItachiXD",
-  "license": "MIT",
+  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.7.5",
-    "form-data": "^4.1.0"
-  },
-  "scripts": {
-    "start": "node index.js"
+    "axios": "^1.6.2"
   }
 }
