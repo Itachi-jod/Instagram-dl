@@ -1,9 +1,10 @@
 {
-  "name": "videodropper-client",
+  "name": "videodropper-proxy-api",
   "version": "1.0.0",
   "main": "index.js",
   "type": "commonjs",
   "dependencies": {
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "express": "^4.18.2"
   }
 }
