@@ -1,22 +1,42 @@
 // index.js
+const express = require("express");
 const axios = require("axios");
 
+const app = express();
+
 // Pretty print helper
-function pretty(data) {
-  console.log(JSON.stringify(data, null, 2));
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2);
 }
 
-async function run() {
-  const url = "https://api.videodropper.app/allinone";
+app.get("/", (req, res) => {
+  res.send(pretty({ status: "VideoDropper Proxy API is running" }));
+});
+
+app.get("/download", async (req, res) => {
+  const userUrl = req.query.url;
+
+  if (!userUrl) {
+    return res.status(400).send(
+      pretty({
+        success: false,
+        message: "Missing parameter ?url="
+      })
+    );
+  }
 
   try {
-    const response = await axios.get(url, {
+    const apiUrl = `https://api.videodropper.app/allinone?url=${encodeURIComponent(
+      userUrl
+    )}`;
+
+    const response = await axios.get(apiUrl, {
       headers: {
-        "Accept": "*/*",
+        Accept: "*/*",
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "en-US,en;q=0.9",
-        "Origin": "https://reelsave.app",
-        "Referer": "https://reelsave.app/",
+        Origin: "https://reelsave.app",
+        Referer: "https://reelsave.app/",
         "User-Agent":
           "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
         "Sec-Fetch-Dest": "empty",
@@ -25,18 +45,20 @@ async function run() {
         "Sec-CH-UA": '"Chromium";v="137", "Not/A)Brand";v="24"',
         "Sec-CH-UA-Mobile": "?1",
         "Sec-CH-UA-Platform": '"Android"',
-        "If-None-Match": 'W/"5cf-Aelj057UN+bQXn0+13m/soAWqaA"' // from your log
+        "If-None-Match": 'W/"5cf-Aelj057UN+bQXn0+13m/soAWqaA"'
       }
     });
 
-    pretty(response.data);
+    return res.send(pretty(response.data));
   } catch (err) {
-    pretty({
-      error: true,
-      message: err.message,
-      details: err.response?.data || null
-    });
+    return res.status(500).send(
+      pretty({
+        success: false,
+        message: err.message,
+        details: err.response?.data || null
+      })
+    );
   }
-}
+});
 
-run();
+module.exports = app;
