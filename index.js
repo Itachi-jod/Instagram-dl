@@ -8,55 +8,44 @@ function pretty(obj) {
 module.exports = async (req, res) => {
   res.setHeader("Content-Type", "application/json");
 
-  // Root check
-  if (req.url === "/" || req.query?.ping === "1") {
-    return res.end(
-      pretty({ status: "VideoDropper Proxy API is running" })
-    );
-  }
-
-  // Only GET supported
+  // Only GET method
   if (req.method !== "GET") {
-    return res.end(
-      pretty({
-        success: false,
-        message: "Only GET method allowed"
-      })
-    );
+    return res.end(pretty({ success: false, message: "Only GET allowed" }));
   }
 
-  const userUrl = req.query.url;
-
-  if (!userUrl) {
+  // Query param
+  const postUrl = req.query.postUrl;
+  if (!postUrl) {
     return res.end(
       pretty({
         success: false,
-        message: "Missing parameter ?url="
+        message: "Missing ?postUrl="
       })
     );
   }
 
   try {
-    const apiUrl = `https://api.videodropper.app/allinone?url=${encodeURIComponent(
-      userUrl
+    // API endpoint (replace with your backend or any extractor)
+    const apiUrl = `https://api.videodropper.app/instagram?url=${encodeURIComponent(
+      postUrl
     )}`;
 
+    // Perfect Instagram-like browser headers
     const response = await axios.get(apiUrl, {
       headers: {
-        Accept: "*/*",
+        "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "en-US,en;q=0.9",
-        Origin: "https://reelsave.app",
-        Referer: "https://reelsave.app/",
         "User-Agent":
           "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
+        "Origin": "https://reelsaver.vercel.app",
+        "Referer": "https://reelsaver.vercel.app/",
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "cross-site",
         "Sec-CH-UA": '"Chromium";v="137", "Not/A)Brand";v="24"',
         "Sec-CH-UA-Mobile": "?1",
-        "Sec-CH-UA-Platform": '"Android"',
-        "If-None-Match": 'W/"5cf-Aelj057UN+bQXn0+13m/soAWqaA"'
+        "Sec-CH-UA-Platform": '"Android"'
       }
     });
 
