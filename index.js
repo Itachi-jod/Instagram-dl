@@ -3,21 +3,26 @@ import axios from "axios";
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
+  // Helper function for pretty JSON
+  const sendPretty = (data, status = 200) => {
+    res.status(status).end(JSON.stringify(data, null, 2)); // 2-space indentation
+  };
+
   // Allow only GET
   if (req.method !== "GET") {
-    return res.status(405).json({
+    return sendPretty({
       success: false,
       message: "Only GET allowed"
-    });
+    }, 405);
   }
 
   // ?url=
   const url = req.query.url;
   if (!url) {
-    return res.status(400).json({
+    return sendPretty({
       success: false,
       message: "Missing ?url="
-    });
+    }, 400);
   }
 
   try {
@@ -36,16 +41,16 @@ export default async function handler(req, res) {
       }
     });
 
-    return res.status(200).json({
+    return sendPretty({
       success: true,
       data: response.data
-    });
+    }, 200);
 
   } catch (err) {
-    return res.status(500).json({
+    return sendPretty({
       success: false,
       message: err.message,
       details: err.response?.data || null
-    });
+    }, 500);
   }
 }
